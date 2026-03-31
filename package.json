@@ -1,0 +1,16 @@
+{
+  "name": "jewelry-fullstack",
+  "version": "1.0.0",
+  "scripts": {
+    "install-all": "npm install && cd jewelry-project/backend && npm install && cd ../frontend && npm install",
+    "dev-backend": "cd jewelry-project/backend && npm run dev",
+    "dev-frontend": "cd jewelry-project/frontend && npm run dev",
+    "dev": "concurrently \"npm run dev-backend\" \"npm run dev-frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "tailwindcss": "^4.2.2"
+  }
+}

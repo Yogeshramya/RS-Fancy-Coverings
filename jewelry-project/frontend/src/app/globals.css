@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+:root {
+  --background: #FDFCF8; /* Soft Off-white/Cream */
+  --foreground: #1A1A1A; /* Near Black */
+  --primary-gold: #D4AF37; /* Elegant Gold */
+  --gold-accent: #C5A028;
+  --soft-gold: #FAF3E0;
+  --card-bg: #FFFFFF;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-gold-primary: var(--primary-gold);
+  --color-gold-accent: var(--gold-accent);
+  --color-gold-soft: var(--soft-gold);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+.gold-gradient {
+  background: linear-gradient(135deg, #D4AF37 0%, #C5A028 100%);
+}
+
+.gold-text-gradient {
+  background: linear-gradient(135deg, #D4AF37 0%, #C5A028 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 2.5s infinite;
+}
+
+.gold-glow {
+  box-shadow: 0 10px 30px -10px rgba(212, 175, 55, 0.4);
+}
