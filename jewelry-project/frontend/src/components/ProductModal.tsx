@@ -17,6 +17,7 @@ interface ProductModalProps {
     stock: number;
     category: string;
     images?: string[];
+    productId?: string;
   };
   isOpen: boolean;
   onClose: () => void;
@@ -32,7 +33,8 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
   const isOutOfStock = product.stock <= 0;
   
   const handleWhatsAppOrder = () => {
-    const message = `Hi, I want to order:\n\nProduct: ${product.name_en}\nPrice: ₹${product.price}`;
+    const productIdStr = product.productId ? ` (ID: ${product.productId})` : "";
+    const message = `Hi, I want to order:\n\nProduct: ${product.name_en}${productIdStr}\nPrice: ₹${product.price}`;
     window.open(`https://wa.me/918778807980?text=${encodeURIComponent(message)}`, "_blank");
   };
 
@@ -43,7 +45,7 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 md:p-8">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -58,7 +60,7 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-5xl bg-white shadow-2xl flex flex-col md:flex-row overflow-hidden max-h-[90vh]"
+            className="relative w-full h-full sm:h-auto sm:max-w-5xl bg-white shadow-2xl flex flex-col md:flex-row overflow-hidden sm:max-h-[90vh]"
           >
             {/* Close Button */}
             <button
@@ -69,8 +71,8 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
             </button>
 
             {/* Left Side: Images */}
-            <div className="w-full md:w-1/2 bg-gold-soft/10 flex flex-col">
-              <div className="flex-grow flex items-center justify-center p-6 sm:p-12">
+            <div className="w-full md:w-1/2 bg-gold-soft/10 flex flex-col shrink-0">
+              <div className="flex-grow flex items-center justify-center p-6 sm:p-12 min-h-[300px]">
                 <motion.img
                   key={selectedImage}
                   initial={{ opacity: 0 }}
@@ -100,7 +102,7 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
             </div>
 
             {/* Right Side: Info */}
-            <div className="w-full md:w-1/2 p-8 md:p-12 overflow-y-auto bg-white flex flex-col">
+            <div className="w-full md:w-1/2 p-6 sm:p-8 md:p-12 overflow-y-auto bg-white flex flex-col">
               <div className="mb-8">
                 <div className="flex items-center gap-3 mb-4">
                    <span className="text-[10px] uppercase tracking-widest text-gold-primary py-1 px-3 border border-gold-primary/20 bg-gold-soft/20">
@@ -142,7 +144,7 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
                     {t("addToCart")}
                   </button>
                   <button
-                    onClick={() => window.location.href = `/payment?id=${product._id}&name=${encodeURIComponent(name)}&price=${product.price}`}
+                    onClick={() => window.location.href = `/payment?id=${product._id}&name=${encodeURIComponent(name)}&subtotal=${product.price}&sku=${encodeURIComponent(product.productId || "")}`}
                     disabled={isOutOfStock}
                     className={`flex-1 flex items-center justify-center gap-2 py-4 bg-gold-primary text-white text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-gold-accent transition-all shadow-md active:scale-95 ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >

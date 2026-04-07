@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 
+import { API_BASE_URL } from "@/config/apiConfig";
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
     totalSales: 0,
@@ -22,9 +24,9 @@ export default function AdminDashboard() {
     // Fetch background stats (Simulation for now)
     const fetchStats = async () => {
       try {
-        const orderRes = await fetch("http://localhost:5000/api/orders");
+        const orderRes = await fetch(`${API_BASE_URL}/api/orders`);
         const orders = await orderRes.json();
-        const productRes = await fetch("http://localhost:5000/api/products");
+        const productRes = await fetch(`${API_BASE_URL}/api/products`);
         const products = await productRes.json();
 
         const totalSales = orders.reduce((acc: number, o: any) => acc + (o.totalPrice || 0), 0);
@@ -53,8 +55,8 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-12">
       <header className="flex flex-col gap-2">
-        <h1 className="text-4xl font-premium font-bold tracking-tight">Executive Summary</h1>
-        <p className="text-sm font-sans text-foreground/40 uppercase tracking-widest">
+        <h1 className="text-3xl md:text-4xl font-premium font-bold tracking-tight">Executive Summary</h1>
+        <p className="text-xs sm:text-sm font-sans text-foreground/40 uppercase tracking-widest">
           Daily performance of RS Fancy Coverings
         </p>
       </header>
@@ -66,7 +68,7 @@ export default function AdminDashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="bg-white p-8 border border-gold-primary/10 shadow-sm flex flex-col justify-between"
+            className="bg-white p-6 sm:p-8 border border-gold-primary/10 shadow-sm flex flex-col justify-between"
           >
             <div className="flex items-start justify-between">
               <div className={card.bg + " p-3 " + card.color}>
@@ -86,8 +88,8 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        <div className="lg:col-span-2 bg-white border border-gold-primary/10 p-10 shadow-sm min-h-[400px]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 sm:gap-12">
+        <div className="lg:col-span-2 bg-white border border-gold-primary/10 p-6 sm:p-10 shadow-sm min-h-[400px]">
           <h2 className="text-xl font-premium font-bold mb-8 tracking-tight">Sales Analytics</h2>
           <div className="h-full flex flex-col items-center justify-center text-foreground/20 italic">
             Visual analytics will appear after more historical data is gathered.
@@ -95,7 +97,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="lg:col-span-1 bg-white border border-gold-primary/10 p-10 shadow-sm h-fit">
+        <div className="lg:col-span-1 bg-white border border-gold-primary/10 p-6 sm:p-10 shadow-sm h-fit">
           <h2 className="text-xs uppercase tracking-widest font-bold text-gold-primary mb-8 underline underline-offset-8">
             System Alerts
           </h2>

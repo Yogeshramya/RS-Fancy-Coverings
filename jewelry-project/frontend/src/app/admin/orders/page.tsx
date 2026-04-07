@@ -14,13 +14,15 @@ import {
   Trash2
 } from "lucide-react";
 
+import { API_BASE_URL } from "@/config/apiConfig";
+
 export default function OrdersAdmin() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/orders");
+      const res = await fetch(`${API_BASE_URL}/api/orders`);
       const data = await res.json();
       setOrders(data.reverse());
     } catch (err) {
@@ -36,7 +38,7 @@ export default function OrdersAdmin() {
 
   const updateStatus = async (id: string, status: string) => {
     try {
-      await fetch(`http://localhost:5000/api/orders/${id}`, {
+      await fetch(`${API_BASE_URL}/api/orders/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status })
@@ -49,7 +51,7 @@ export default function OrdersAdmin() {
   const deleteOrder = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this order? This action is permanent and cannot be undone.")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/orders/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/orders/${id}`, {
         method: "DELETE"
       });
       if (res.ok) {
@@ -74,17 +76,17 @@ export default function OrdersAdmin() {
 
   return (
     <div className="space-y-8">
-      <header className="flex justify-between items-end">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
         <div>
-          <h1 className="text-3xl font-premium font-bold tracking-tight mb-2">Order Fulfillment</h1>
+          <h1 className="text-2xl sm:text-3xl font-premium font-bold tracking-tight mb-2">Order Fulfillment</h1>
           <p className="text-[10px] uppercase tracking-widest text-foreground/40 font-bold">Manage & Verify UPI Payments</p>
         </div>
-        <div className="relative">
+        <div className="relative w-full sm:w-auto mt-4 sm:mt-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/30" size={16} />
           <input 
             type="text" 
-            placeholder="Search by Transaction ID..." 
-            className="pl-10 pr-4 py-2 bg-white border border-gold-primary/10 text-xs focus:border-gold-primary outline-none transition-all w-64"
+            placeholder="Search..." 
+            className="pl-10 pr-4 py-2.5 bg-white border border-gold-primary/10 text-xs focus:border-gold-primary outline-none transition-all w-full sm:w-64 shadow-sm"
           />
         </div>
       </header>
@@ -92,10 +94,11 @@ export default function OrdersAdmin() {
       {loading ? (
         <div className="py-20 text-center font-premium text-xl text-foreground/20 italic">Loading your orders...</div>
       ) : (
-        <div className="bg-white border border-gold-primary/10 overflow-hidden shadow-sm">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-[#FAF9F6] border-b border-gold-primary/10">
+        <div className="bg-white border border-gold-primary/10 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gold-primary/20">
+            <table className="w-full text-left border-collapse min-w-[1000px]">
+              <thead>
+                <tr className="bg-[#FAF9F6] border-b border-gold-primary/10">
                 <th className="p-6 text-[10px] uppercase tracking-[0.2em] font-bold text-gold-primary">Order Date</th>
                 <th className="p-6 text-[10px] uppercase tracking-[0.2em] font-bold text-gold-primary">Customer Details</th>
                 <th className="p-6 text-[10px] uppercase tracking-[0.2em] font-bold text-gold-primary">Items</th>
@@ -131,9 +134,14 @@ export default function OrdersAdmin() {
                   <td className="p-6 align-top">
                     <div className="space-y-1">
                       {order.items?.map((item: any, i: number) => (
-                        <p key={i} className="text-[11px] font-sans leading-relaxed text-foreground/70">
-                          {item.name} <span className="text-gold-primary font-bold">x{item.quantity}</span>
-                        </p>
+                        <div key={i} className="text-[11px] font-sans leading-relaxed text-foreground/70">
+                          <p>
+                            {item.name} <span className="text-gold-primary font-bold">x{item.quantity}</span>
+                          </p>
+                          {item.sku && (
+                            <p className="text-[9px] text-gold-primary font-bold uppercase tracking-wider">SKU: {item.sku}</p>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </td>
@@ -197,7 +205,8 @@ export default function OrdersAdmin() {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
       )}
     </div>

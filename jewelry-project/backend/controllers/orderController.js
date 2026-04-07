@@ -4,7 +4,7 @@ const Product = require('../models/product');
 
 // Create a new order (handles stock reduction, Cart/Single, and UPI)
 exports.createOrder = async (req, res) => {
-  const { productId, items, customerName, phone, address, orderType, paymentId, upiLast4, totalPrice } = req.body;
+  const { productId, items, customerName, phone, address, orderType, paymentId, upiLast4, totalPrice, deliveryCharge } = req.body;
 
   try {
     // Handle stock reduction for all items (only if valid IDs are provided)
@@ -34,6 +34,7 @@ exports.createOrder = async (req, res) => {
       phone,
       address,
       totalPrice,
+      deliveryCharge: deliveryCharge || 0,
       orderType,
       paymentId: paymentId || null,
       upiLast4: upiLast4 || null,

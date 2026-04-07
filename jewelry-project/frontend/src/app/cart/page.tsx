@@ -9,7 +9,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function CartPage() {
-  const { cartItems, updateQuantity, removeFromCart, totalAmount, itemCount } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, totalAmount, deliveryCharge, totalWithDelivery, itemCount } = useCart();
   const { language, t } = useLanguage();
 
   if (itemCount === 0) {
@@ -30,7 +30,7 @@ export default function CartPage() {
 
   const handleCheckout = () => {
     const itemsSummary = cartItems.map(item => `${item.name_en} (x${item.quantity})`).join(", ");
-    window.location.href = `/payment?name=${encodeURIComponent(itemsSummary)}&price=${totalAmount}`;
+    window.location.href = `/payment?name=${encodeURIComponent(itemsSummary)}&subtotal=${totalAmount}&delivery=${deliveryCharge}`;
   };
 
   return (
@@ -38,9 +38,9 @@ export default function CartPage() {
       <Navbar />
       
       <div className="max-w-4xl mx-auto pt-32 px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-12 border-b border-gold-primary/10 pb-6">
-          <h1 className="text-4xl font-premium font-bold tracking-tight">Shopping Bag ({itemCount})</h1>
-          <Link href="/" className="text-xs uppercase tracking-widest text-gold-primary hover:text-gold-accent font-bold">
+        <div className="flex flex-col sm:flex-row items-baseline sm:items-center justify-between mb-12 border-b border-gold-primary/10 pb-6 gap-4">
+          <h1 className="text-3xl md:text-4xl font-premium font-bold tracking-tight">Shopping Bag ({itemCount})</h1>
+          <Link href="/" className="text-[10px] sm:text-xs uppercase tracking-widest text-gold-primary hover:text-gold-accent font-bold">
             Continue Shopping
           </Link>
         </div>
@@ -56,24 +56,35 @@ export default function CartPage() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
-                  className="flex items-center gap-6 p-4 bg-white border border-gold-primary/10 relative group"
+                  className="flex flex-col sm:flex-row items-center gap-6 p-4 bg-white border border-gold-primary/10 relative group"
                 >
-                  <div className="w-24 h-32 bg-gold-soft/20 flex-shrink-0">
+                  <div className="w-full sm:w-24 h-64 sm:h-32 bg-gold-soft/20 flex-shrink-0 overflow-hidden">
                     <img 
-                      src={item.image || "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80&w=400"} 
+                      src={(item.images && item.images[0]) || item.image || "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80&w=400"} 
                       alt={language === "en" ? item.name_en : item.name_ta} 
-                      className="w-full h-full object-cover" 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
                     />
                   </div>
 
-                  <div className="flex-grow">
-                    <p className="text-[10px] uppercase tracking-widest text-gold-primary mb-1">{item.category}</p>
-                    <h3 className="text-lg font-premium font-medium mb-1">
-                      {language === "en" ? item.name_en : item.name_ta}
-                    </h3>
+                  <div className="flex-grow w-full">
+                    <div className="flex justify-between items-start mb-2">
+                       <div>
+                        <p className="text-[9px] uppercase tracking-widest text-gold-primary mb-1">{item.category}</p>
+                        <h3 className="text-lg font-premium font-medium">
+                          {language === "en" ? item.name_en : item.name_ta}
+                        </h3>
+                      </div>
+                      <button 
+                        onClick={() => removeFromCart(item._id)}
+                        className="text-foreground/20 hover:text-red-500 transition-colors sm:hidden"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+
                     <p className="text-gold-primary font-bold mb-4 font-sans tracking-wide">₹{item.price}</p>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-between sm:justify-start gap-4">
                       <div className="flex items-center border border-gold-primary/20 bg-background rounded-none">
                         <button 
                           onClick={() => updateQuantity(item._id, -1)}
@@ -94,7 +105,7 @@ export default function CartPage() {
 
                   <button 
                     onClick={() => removeFromCart(item._id)}
-                    className="absolute top-4 right-4 text-foreground/20 hover:text-red-500 transition-colors"
+                    className="absolute top-4 right-4 text-foreground/20 hover:text-red-500 transition-colors hidden sm:block"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -107,23 +118,33 @@ export default function CartPage() {
           <div className="lg:col-span-1">
             <div className="bg-white border border-gold-primary/20 p-8 sticky top-32 shadow-sm">
               <h2 className="text-2xl font-premium font-bold mb-8 pb-4 border-b border-gold-primary/10 tracking-tight">
-                Order Summary
+                {t("orderSummary")}
               </h2>
               
               <div className="space-y-6 mb-10">
                 <div className="flex justify-between items-center">
-                  <span className="text-foreground/50 uppercase tracking-widest text-[11px] font-medium">Subtotal</span>
+                  <span className="text-foreground/50 uppercase tracking-widest text-[11px] font-medium">{t("subtotal")}</span>
                   <span className="font-bold text-lg font-sans">₹{totalAmount}</span>
                 </div>
+                
                 <div className="flex justify-between items-start gap-4">
-                  <span className="text-foreground/50 uppercase tracking-widest text-[11px] font-medium pt-0.5">Shipping</span>
-                  <span className="text-green-600 font-bold uppercase text-[9px] tracking-widest text-right bg-green-50 px-2 py-1 leading-tight">
-                    Calculated at <br /> checkout
+                  <span className="text-foreground/50 uppercase tracking-widest text-[11px] font-medium pt-0.5">{t("deliveryCharge")}</span>
+                  <span className={`${deliveryCharge === 0 ? "text-green-600" : "text-foreground"} font-bold uppercase text-[11px] tracking-widest text-right`}>
+                    {deliveryCharge === 0 ? t("freeDelivery") : `₹${deliveryCharge}`}
                   </span>
                 </div>
+
+                {deliveryCharge > 0 && (
+                  <div className="p-3 bg-gold-soft/10 border border-gold-primary/10 text-center">
+                    <p className="text-[10px] uppercase tracking-widest text-gold-primary font-bold">
+                      {t("spendMoreForFreeDelivery").replace("{amount}", (500 - totalAmount).toString())}
+                    </p>
+                  </div>
+                )}
+
                 <div className="pt-6 border-t border-gold-primary/10 flex justify-between items-baseline">
-                  <span className="font-premium font-bold text-lg tracking-tight">Total Bill</span>
-                  <span className="text-2xl font-bold text-gold-primary font-sans">₹{totalAmount}</span>
+                  <span className="font-premium font-bold text-lg tracking-tight">{t("totalBill")}</span>
+                  <span className="text-2xl font-bold text-gold-primary font-sans">₹{totalWithDelivery}</span>
                 </div>
               </div>
 

@@ -44,6 +44,12 @@ const translations = {
     next: "Next",
     page: "Page",
     collectionLoading: "Revealing our latest collection...",
+    deliveryCharge: "Delivery Charge",
+    spendMoreForFreeDelivery: "Spend ₹{amount} more for FREE delivery",
+    subtotal: "Subtotal",
+    totalBill: "Total Bill",
+    freeDelivery: "FREE",
+    orderSummary: "Order Summary",
   },
   ta: {
     heroTitle: "நேர்த்தியான கவரிங் நகைகள்",
@@ -78,6 +84,12 @@ const translations = {
     next: "அடுத்தது",
     page: "பக்கம்",
     collectionLoading: "எங்கள் சமீபத்திய தொகுப்பை வெளிப்படுத்துகிறோம்...",
+    deliveryCharge: "டெலிவரி கட்டணம்",
+    spendMoreForFreeDelivery: "FREE டெலிவரிக்கு இன்னும் ₹{amount} செலவிடுங்கள்",
+    subtotal: "துணைத் தொகை",
+    totalBill: "மொத்த பில்",
+    freeDelivery: "இலவசம்",
+    orderSummary: "ஆர்டர் சுருக்கம்",
   },
 };
 

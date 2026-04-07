@@ -28,8 +28,24 @@ exports.getProductById = async (req, res) => {
 
 // Create product (Admin)
 exports.createProduct = async (req, res) => {
-  const product = new Product(req.body);
   try {
+    const productData = { ...req.body };
+    
+    // Handle Cloudinary Uploads
+    if (req.files && req.files.length > 0) {
+      const imageUrls = req.files.map(file => file.path);
+      productData.images = imageUrls;
+    } else if (req.body.images) {
+      // Handle cases where images are provided as URLs (if any)
+      productData.images = Array.isArray(req.body.images) ? req.body.images : [req.body.images];
+    }
+
+    // Parse numeric fields
+    if (productData.price) productData.price = Number(productData.price);
+    if (productData.stock) productData.stock = Number(productData.stock);
+    if (productData.isTrending) productData.isTrending = productData.isTrending === 'true';
+
+    const product = new Product(productData);
     const newProduct = await product.save();
     res.status(201).json(newProduct);
   } catch (error) {
@@ -40,7 +56,20 @@ exports.createProduct = async (req, res) => {
 // Update product (Admin)
 exports.updateProduct = async (req, res) => {
   try {
-    const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updateData = { ...req.body };
+
+    // Handle Cloudinary Uploads - Replace existing images
+    if (req.files && req.files.length > 0) {
+      const imageUrls = req.files.map(file => file.path);
+      updateData.images = imageUrls;
+    }
+
+    // Parse numeric fields
+    if (updateData.price) updateData.price = Number(updateData.price);
+    if (updateData.stock) updateData.stock = Number(updateData.stock);
+    if (updateData.isTrending) updateData.isTrending = updateData.isTrending === 'true';
+
+    const updatedProduct = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
     res.json(updatedProduct);
   } catch (error) {
     res.status(400).json({ message: error.message });

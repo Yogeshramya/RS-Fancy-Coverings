@@ -16,6 +16,7 @@ interface ProductCardProps {
     stock: number;
     category: string;
     images?: string[];
+    productId?: string;
   };
 }
 
@@ -28,7 +29,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   const isLowStock = product.stock > 0 && product.stock <= 5;
 
   const handleWhatsAppOrder = () => {
-    const message = `Hi, I want to order:\n\nProduct: ${product.name_en}\nPrice: ₹${product.price}`;
+    const productIdStr = product.productId ? ` (ID: ${product.productId})` : "";
+    const message = `Hi, I want to order:\n\nProduct: ${product.name_en}${productIdStr}\nPrice: ₹${product.price}`;
     window.open(`https://wa.me/918778807980?text=${encodeURIComponent(message)}`, "_blank");
   };
 
@@ -71,12 +73,12 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Product Details */}
-        <div className="p-6 flex-grow flex flex-col justify-between">
+        <div className="p-4 sm:p-6 flex-grow flex flex-col justify-between">
           <div className="mb-4">
-            <h3 className="text-xl font-premium font-medium tracking-tight mb-2 group-hover:text-gold-primary transition-colors">
+            <h3 className="text-lg sm:text-xl font-premium font-medium tracking-tight mb-2 group-hover:text-gold-primary transition-colors">
               {name}
             </h3>
-            <p className="text-xl font-sans font-semibold text-gold-primary">
+            <p className="text-lg sm:text-xl font-sans font-semibold text-gold-primary">
               ₹{product.price}
             </p>
           </div>
@@ -91,7 +93,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               {t("addToCart")}
             </button>
             <button 
-              onClick={() => window.location.href = `/payment?id=${product._id}&name=${encodeURIComponent(name)}&price=${product.price}`}
+              onClick={() => window.location.href = `/payment?id=${product._id}&name=${encodeURIComponent(name)}&subtotal=${product.price}&sku=${encodeURIComponent(product.productId || "")}`}
               className="w-full flex items-center justify-center gap-2 py-3 bg-gold-primary text-white text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-gold-accent transition-all shadow-md active:scale-[0.98]"
             >
               {t("buyNow")}

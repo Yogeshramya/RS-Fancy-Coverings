@@ -22,7 +22,12 @@ if (!fs.existsSync(uploadDir)){
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+};
+app.use(cors(corsOptions));
 app.use('/uploads', express.static(uploadDir));
 
 // Routes

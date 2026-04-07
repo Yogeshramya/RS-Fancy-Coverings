@@ -89,6 +89,8 @@ const SortDropdown = ({ sortBy, setSortBy, t }: { sortBy: string; setSortBy: (v:
   );
 };
 
+import { API_BASE_URL } from "@/config/apiConfig";
+
 function HomeContent() {
   const { t } = useLanguage();
   const searchParams = useSearchParams();
@@ -104,7 +106,7 @@ function HomeContent() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/products");
+        const res = await fetch(`${API_BASE_URL}/api/products`);
         const data = await res.json();
         setAllProducts(data);
       } catch (err) {

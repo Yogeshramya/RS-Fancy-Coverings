@@ -9,7 +9,9 @@ interface CartItem {
   price: number;
   quantity: number;
   image?: string;
+  images?: string[];
   category: string;
+  productId?: string;
 }
 
 interface CartContextType {
@@ -19,6 +21,8 @@ interface CartContextType {
   updateQuantity: (id: string, delta: number) => void;
   clearCart: () => void;
   totalAmount: number;
+  deliveryCharge: number;
+  totalWithDelivery: number;
   itemCount: number;
 }
 
@@ -52,7 +56,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
           item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      return [...prev, { ...product, quantity: 1 }];
+      
+      const cartProduct: CartItem = {
+        _id: product._id,
+        name_en: product.name_en,
+        name_ta: product.name_ta,
+        price: product.price,
+        images: product.images,
+        category: product.category,
+        productId: product.productId, // Preserve the custom SKU
+        quantity: 1
+      };
+      
+      if (cartProduct.images && cartProduct.images.length > 0) {
+        cartProduct.image = cartProduct.images[0];
+      }
+      
+      return [...prev, cartProduct];
     });
   };
 
@@ -76,9 +96,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const totalAmount = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const itemCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  
+  // Delivery Charge Logic: 50 if < 500, else 0
+  const deliveryCharge = (totalAmount > 0 && totalAmount < 500) ? 50 : 0;
+  const totalWithDelivery = totalAmount + deliveryCharge;
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateQuantity, clearCart, totalAmount, itemCount }}>
+    <CartContext.Provider value={{ 
+      cartItems, 
+      addToCart, 
+      removeFromCart, 
+      updateQuantity, 
+      clearCart, 
+      totalAmount, 
+      deliveryCharge,
+      totalWithDelivery,
+      itemCount 
+    }}>
       {children}
     </CartContext.Provider>
   );

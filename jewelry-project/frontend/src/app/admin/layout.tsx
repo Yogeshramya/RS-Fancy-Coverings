@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
@@ -8,13 +8,15 @@ import {
   ShoppingBag, 
   Package, 
   PlusCircle, 
-  Settings, 
   LogOut,
   ChevronRight,
-  ExternalLink
+  ExternalLink,
+  Menu,
+  X
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { motion, AnimatePresence } from "framer-motion";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -34,12 +36,18 @@ function AdminContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { isAdmin, logout, isLoading } = useAdminAuth();
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
   useEffect(() => {
     if (!isLoading && !isAdmin && pathname !== "/admin/login") {
       router.push("/admin/login");
     }
   }, [isAdmin, isLoading, pathname, router]);
+
+  // Close sidebar on navigation (mobile)
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [pathname]);
 
   if (isLoading || (!isAdmin && pathname !== "/admin/login")) {
     return (
@@ -55,16 +63,39 @@ function AdminContent({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9F9F7] flex">
+    <div className="min-h-screen bg-[#F9F9F7] flex flex-col md:flex-row h-screen overflow-hidden">
+      {/* Sidebar Mobile Toggle */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-black/60 z-[60] md:hidden backdrop-blur-sm"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gold-primary/10 flex flex-col sticky top-0 h-screen shadow-sm z-20">
-        <div className="p-8 border-b border-gold-primary/5">
+      <aside className={cn(
+        "fixed inset-y-0 left-0 w-72 bg-white border-r border-gold-primary/10 flex flex-col z-[70] transition-transform duration-300 transform md:relative md:translate-x-0 md:w-64 shadow-xl md:shadow-none",
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <div className="p-8 border-b border-gold-primary/5 flex items-center justify-between">
           <Link href="/" className="text-xl font-premium tracking-[0.2em] font-bold gold-text-gradient">
             RS ADMIN
           </Link>
+          <button 
+            onClick={() => setIsSidebarOpen(false)}
+            className="md:hidden text-foreground/40 p-2"
+          >
+            <X size={20} />
+          </button>
         </div>
 
-        <nav className="flex-grow p-6 space-y-2">
+        <nav className="flex-grow p-6 space-y-2 overflow-y-auto overflow-x-hidden pt-8">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-gold-primary font-bold mb-4 opacity-50 px-3">Management</p>
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -72,10 +103,10 @@ function AdminContent({ children }: { children: React.ReactNode }) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center justify-between p-3 rounded-none transition-all group",
+                  "flex items-center justify-between p-4 rounded-none transition-all group",
                   isActive 
-                    ? "bg-gold-soft/30 text-gold-primary border-l-2 border-gold-primary pl-4" 
-                    : "text-foreground/50 hover:bg-gold-soft/10 hover:text-gold-primary"
+                    ? "bg-gold-soft/30 text-gold-primary border-l-2 border-gold-primary pl-6" 
+                    : "text-foreground/50 hover:bg-gold-soft/10 hover:text-gold-primary pl-4"
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -103,39 +134,51 @@ function AdminContent({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-grow overflow-y-auto">
-        <header className="h-20 bg-white border-b border-gold-primary/5 flex items-center justify-between px-10 sticky top-0 z-10 shadow-sm">
-          <div className="flex items-center gap-6">
-            <h2 className="text-sm font-premium tracking-widest uppercase font-bold text-foreground/70">
+      {/* Main Content Area */}
+      <div className="flex-grow flex flex-col w-full overflow-hidden">
+        {/* Header */}
+        <header className="h-20 bg-white border-b border-gold-primary/5 flex items-center justify-between px-4 sm:px-10 sticky top-0 z-[50] shadow-sm flex-shrink-0">
+          <div className="flex items-center gap-3 sm:gap-6">
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden text-foreground p-2 hover:bg-gold-soft/20 transition-colors rounded-full"
+              aria-label="Open sidebar"
+            >
+              <Menu size={20} />
+            </button>
+            
+            <h2 className="text-[10px] sm:text-xs font-premium tracking-[0.2em] uppercase font-bold text-foreground/70 border-l-2 border-gold-primary md:border-none pl-3 md:pl-0">
               {menuItems.find(i => i.href === pathname)?.name || "Management"}
             </h2>
             
             <Link 
               href="/" 
               target="_blank"
-              className="flex items-center gap-2 px-4 py-2 border border-gold-primary/20 text-[10px] uppercase tracking-widest font-bold text-gold-primary hover:bg-gold-soft/20 transition-all ml-4"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 border border-gold-primary/20 text-[10px] uppercase tracking-widest font-bold text-gold-primary hover:bg-gold-soft/20 transition-all ml-4"
             >
               <ExternalLink size={12} />
               View Store
             </Link>
           </div>
           
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-[10px] uppercase tracking-widest text-gold-primary font-bold">Boutique Admin</p>
-              <p className="text-xs text-foreground/40">Ranjani</p>
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="text-right hidden xs:block">
+              <p className="text-[9px] uppercase tracking-widest text-gold-primary font-bold">Boutique Admin</p>
+              <p className="text-[10px] text-foreground/40">Ranjani</p>
             </div>
-            <div className="w-10 h-10 rounded-full bg-gold-soft/50 border border-gold-primary/20 flex items-center justify-center font-premium font-bold text-gold-primary">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gold-soft/50 border border-gold-primary/20 flex items-center justify-center font-premium font-bold text-gold-primary">
               R
             </div>
           </div>
         </header>
 
-        <div className="p-10">
-          {children}
-        </div>
-      </main>
+        {/* Scrollable Content */}
+        <main className="flex-grow overflow-y-auto">
+          <div className="p-6 sm:p-10 max-w-full overflow-x-hidden">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

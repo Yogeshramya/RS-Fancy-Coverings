@@ -7,13 +7,23 @@ import Navbar from "@/components/Navbar";
 import { useCart } from "@/context/CartContext";
 import { QRCodeCanvas } from "qrcode.react";
 
+import { API_BASE_URL } from "@/config/apiConfig";
+
 function PaymentContent() {
   const params = useSearchParams();
   const router = useRouter();
   const { cartItems, clearCart } = useCart();
   
   const nameSummary = params.get("name") || "Jewelry Item";
-  const totalPrice = params.get("price") || "0";
+  
+  // Calculate subtotal from URL or Cart
+  const subtotal = cartItems.length > 0 
+    ? cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
+    : Number(params.get("subtotal") || "0");
+
+  // Consistent Delivery Logic: 50 if < 500, else 0
+  const deliveryCharge = (subtotal > 0 && subtotal < 500) ? 50 : 0;
+  const totalPrice = subtotal + deliveryCharge;
   
   const [formData, setFormData] = useState({
     customerName: "",
@@ -40,6 +50,7 @@ function PaymentContent() {
     setIsSubmitting(true);
     try {
       const summaryId = params.get("id");
+      const sku = params.get("sku") || "";
       
       // Prepare the order data
       const orderData = {
@@ -48,21 +59,24 @@ function PaymentContent() {
         address: formData.address,
         upiLast4: formData.upiLast4,
         totalPrice: Number(totalPrice),
+        deliveryCharge: Number(deliveryCharge),
         orderType: "UPI",
         items: cartItems.length > 0 ? cartItems.map(item => ({
           productId: item._id,
+          sku: item.productId || "",
           name: item.name_en,
           price: item.price,
           quantity: item.quantity
         })) : [{ 
           productId: summaryId, 
+          sku: sku,
           name: nameSummary, 
           price: Number(totalPrice), 
           quantity: 1 
         }]
       };
 
-      const response = await fetch("http://localhost:5000/api/orders", {
+      const response = await fetch(`${API_BASE_URL}/api/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData)
@@ -117,9 +131,26 @@ function PaymentContent() {
                 />
               </div>
 
-              <div className="p-4 bg-gold-soft/20 border border-gold-primary/10 mt-8">
-                <p className="text-[10px] uppercase tracking-widest text-gold-primary mb-1">Total Bill</p>
-                <p className="text-2xl font-bold font-sans">₹{totalPrice}</p>
+              <div className="p-4 bg-gold-soft/20 border border-gold-primary/10 mt-8 space-y-2">
+                <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-foreground/60">
+                  <span>Subtotal</span>
+                  <span className="font-sans">₹{subtotal}</span>
+                </div>
+                <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-foreground/60 pb-2 border-b border-gold-primary/10">
+                  <span>Delivery</span>
+                  <span className="font-sans">{Number(deliveryCharge) === 0 ? "FREE" : `₹${deliveryCharge}`}</span>
+                </div>
+                {deliveryCharge > 0 && (
+                  <div className="py-2 px-3 bg-gold-primary/5 rounded-sm border border-gold-primary/10 animate-pulse">
+                    <p className="text-[9px] uppercase tracking-wider text-gold-primary font-bold text-center">
+                      Add ₹{500 - subtotal} more for <span className="underline underline-offset-2">FREE Delivery!</span>
+                    </p>
+                  </div>
+                )}
+                <div className="flex justify-between items-center pt-2">
+                  <p className="text-[10px] uppercase tracking-widest text-gold-primary font-bold">Total Bill</p>
+                  <p className="text-2xl font-bold font-sans text-gold-primary">₹{totalPrice}</p>
+                </div>
                 <p className="text-[9px] text-foreground/50 mt-1 italic">{nameSummary}</p>
               </div>
             </div>
