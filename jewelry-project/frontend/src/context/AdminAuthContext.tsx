@@ -26,7 +26,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   const login = (password: string) => {
     // For now, using a direct password check. 
     // In production, this should match an environment variable or backend call.
-    if (password === "Ranjani@86") {
+    if (password === "admin") {
       setIsAdmin(true);
       sessionStorage.setItem("rs_admin_auth", "true");
       return true;

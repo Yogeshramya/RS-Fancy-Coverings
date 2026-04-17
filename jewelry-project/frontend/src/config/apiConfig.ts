@@ -1,10 +1,10 @@
 // Base API URL configuration
-// In development, this defaults to localhost:5000
-// In production, set NEXT_PUBLIC_API_URL in your environment variables (e.g., on Vercel)
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+// Using relative path for Next.js API routes
+// Set to empty string because components already prefix with /api
+export const API_BASE_URL = "";
 
 export const API_ROUTES = {
-  PRODUCTS: `${API_BASE_URL}/api/products`,
-  ORDERS: `${API_BASE_URL}/api/orders`,
-  UPLOAD: `${API_BASE_URL}/api/upload`,
+  PRODUCTS: `/api/products`,
+  ORDERS: `/api/orders`,
+  UPLOAD: `/api/products`,
 };
